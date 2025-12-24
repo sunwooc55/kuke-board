@@ -3,6 +3,7 @@ package kuke.board.article.controller;
 import kuke.board.article.service.ArticleService;
 import kuke.board.article.service.request.ArticleCreateRequest;
 import kuke.board.article.service.request.ArticleUpdateRequest;
+import kuke.board.article.service.response.ArticlePageResponse;
 import kuke.board.article.service.response.ArticleResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +24,18 @@ public class ArticleController {
     // {articleId} 에 있는 값을 추출하여 Long articleId 변수에 넣어줌
     public ArticleResponse read(@PathVariable Long articleId){
         return articleService.read(articleId);
+    }
+
+    @GetMapping("/v1/articles")
+    // 게시글 목록을 조회(페이징)
+    public ArticlePageResponse readAll(
+            @RequestParam("boardId") Long boardId, // @RequestParam("") : URL 뒤에 붙는 ?key=value 형태의 데이터를 받아서 변수에 넣어줌
+            @RequestParam("page") Long page,
+            @RequestParam("pageSize") Long pageSize
+
+    ){
+        // 서비스 계층에 boardId, page, pageSize를 넘기고 ArticlePageResponse를 받아 클라이언트에 반환
+        return articleService.readAll(boardId, page, pageSize);
     }
 
     @PutMapping("/v1/articles/{articleId}")
