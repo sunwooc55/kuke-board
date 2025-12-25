@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service // 서비스 계층임을 명시하고, 스프링 컨테이너로 하여금 스프링 빈(싱글톤)으로 등록하여 관리하게 함
 @RequiredArgsConstructor // final이 붙은 필드를 매개변수로 받는 생성자를 자동으로 만들어줌
 public class ArticleService {
@@ -60,5 +62,16 @@ public class ArticleService {
                         PageLimitCalculator.calculatePageLimit(page, pageSize, 10L)
                 )
         );
+    }
+
+    public List<ArticleResponse> readAllInfiniteScroll(Long boardId, Long pageSize, Long lastArticleId){
+        List<Article> articles = lastArticleId == null ? // 기준점 있는지 확인
+                articleRepository.findAllInfiniteScroll(boardId, pageSize) : // 기준점 없으면
+                articleRepository. findAllInfiniteScroll(boardId, pageSize, lastArticleId); // 기준점 있으면
+
+        return articles
+                .stream()
+                .map(ArticleResponse::from)
+                .toList();
     }
 }
