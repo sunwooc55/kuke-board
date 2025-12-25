@@ -16,14 +16,6 @@ import java.util.List;
 public class ArticleController {
     private final ArticleService articleService;
 
-    @PostMapping("/v1/articles")
-    // 사용자가 보낸 JSON 데이터를 ArticleCreateRequest 객체로 변환하여 매개변수에 넣어줌
-    public ArticleResponse create(@RequestBody ArticleCreateRequest request){
-        return articleService.create(request);
-    }
-
-    // ------------------------------------------------------------------------------------------------------------------------
-
     @GetMapping("/v1/articles/{articleId}")
     // {articleId} 에 있는 값을 추출하여 Long articleId 변수에 넣어줌
     public ArticleResponse read(@PathVariable Long articleId){
@@ -49,6 +41,14 @@ public class ArticleController {
             @RequestParam(value = "lastArticleId", required = false) Long lastArticleId
     ){
         return articleService.readAllInfiniteScroll(boardId, pageSize, lastArticleId);
+    }
+
+    // ------------------------------------------------------------------------------------------------------------------------
+
+    @PostMapping("/v1/articles")
+    // 사용자가 보낸 JSON 데이터를 ArticleCreateRequest 객체로 변환하여 매개변수에 넣어줌
+    public ArticleResponse create(@RequestBody ArticleCreateRequest request){
+        return articleService.create(request);
     }
 
     // ------------------------------------------------------------------------------------------------------------------------
