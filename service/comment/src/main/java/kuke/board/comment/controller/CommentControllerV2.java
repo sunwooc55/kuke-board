@@ -5,6 +5,7 @@ import kuke.board.comment.service.CommentServiceV2;
 import kuke.board.comment.service.request.CommentCreateRequest;
 import kuke.board.comment.service.request.CommentCreateRequestV2;
 import kuke.board.comment.service.response.CommentPageResponse;
+import kuke.board.comment.service.response.CommentPageResponseV2;
 import kuke.board.comment.service.response.CommentResponse;
 import kuke.board.comment.service.response.CommentResponseV2;
 import lombok.RequiredArgsConstructor;
@@ -39,4 +40,22 @@ public class CommentControllerV2 {
     }
 
     //--------------------------------------------------------------------------------------
+
+    @GetMapping("/v2/comments")
+    public CommentPageResponseV2 readAll(
+            @RequestParam("articleId") Long articleId,
+            @RequestParam("page") Long page,
+            @RequestParam("pageSize") Long pageSize
+    ){
+        return commentServiceV2.readAll(articleId, page, pageSize);
+    }
+
+    @GetMapping("/v2/comments/infinite-scroll")
+    public List<CommentResponseV2> readAllInfiniteScroll(
+            @RequestParam("articleId") Long articleId,
+            @RequestParam(value = "lastPath", required = false) String lastPath,
+            @RequestParam("pageSize") Long pageSize
+    ){
+        return commentServiceV2.readAllInfiniteScroll(articleId, lastPath, pageSize);
+    }
 }
