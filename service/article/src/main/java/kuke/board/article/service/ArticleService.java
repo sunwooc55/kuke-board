@@ -32,7 +32,7 @@ public class ArticleService {
     //READ
     //단순히 DB에서 꺼내서 DTO로 변경
     public ArticleResponse read(Long articleId){
-        return ArticleResponse.from(articleRepository.findById(articleId).orElseThrow());
+        return ArticleResponse.from(articleRepository.findById(articleId).orElseThrow()); // 찾는 데이터가 없으면 null 반환하는 것이 아니라 예외를 던져 에러 응답 보냄
     }
 
     //UPDATE
@@ -67,7 +67,7 @@ public class ArticleService {
     public List<ArticleResponse> readAllInfiniteScroll(Long boardId, Long pageSize, Long lastArticleId){
         List<Article> articles = lastArticleId == null ? // 기준점 있는지 확인
                 articleRepository.findAllInfiniteScroll(boardId, pageSize) : // 기준점 없으면
-                articleRepository. findAllInfiniteScroll(boardId, pageSize, lastArticleId); // 기준점 있으면
+                articleRepository.findAllInfiniteScroll(boardId, pageSize, lastArticleId); // 기준점 있으면
 
         return articles
                 .stream()

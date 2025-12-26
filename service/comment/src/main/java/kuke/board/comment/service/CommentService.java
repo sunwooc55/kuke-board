@@ -66,12 +66,12 @@ public class CommentService {
                 });
     }
 
-    public boolean hasChildren(Comment comment){
+    private boolean hasChildren(Comment comment){
         // 원댓글은 parentCommentId가 자기 자신이므로 최소한 1개를 찾음. 여기에 답글이 달리면 1개 추가이므로 2인지 체크
         return commentRepository.countBy(comment.getArticleId(), comment.getCommentId(), 2L) == 2;
     }
 
-    public void delete(Comment comment){
+    private void delete(Comment comment){
         commentRepository.delete(comment);
         if(!comment.isRoot()){
             commentRepository.findById(comment.getParentCommentId())
