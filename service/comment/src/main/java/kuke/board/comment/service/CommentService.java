@@ -15,15 +15,18 @@ import java.util.List;
 
 import static java.util.function.Predicate.not;
 
+
+// 댓글 기능의 비즈니스 로직을 총괄하는 핵심 Service 계층
 @Service
 @RequiredArgsConstructor
 public class CommentService {
     private final Snowflake snowflake = new Snowflake();
-    private final CommentRepository commentRepository;
+    private final CommentRepository commentRepository; // DB 작업을 수행할 저장소를 주입
 
+    // 댓글 생성 (Create) - 2단계 깊이 제한
     @Transactional
     public CommentResponse create(CommentCreateRequest request){
-        Comment parent = findParent(request);
+        Comment parent = findParent(request); // 부모 댓글 검증
         Comment comment = commentRepository.save(
                 Comment.create(
                         snowflake.nextId(),
@@ -36,6 +39,7 @@ public class CommentService {
         return CommentResponse.from(comment);
     }
 
+    // 검증 로직
     private Comment findParent(CommentCreateRequest request){
         Long parentCommentId = request.getParentCommentId();
         if(parentCommentId == null){
@@ -81,6 +85,7 @@ public class CommentService {
         }
     }
 
+    // 페이지 기반 목록 조회
     public CommentPageResponse readAll(Long articleId, Long page, Long pageSize){
         return CommentPageResponse.of(
                 commentRepository.findAll(articleId, (page-1)*pageSize, pageSize)
@@ -91,6 +96,7 @@ public class CommentService {
         );
     }
 
+    // 무한 스크롤 기반 목록 조회
     public List<CommentResponse> readAll(Long articleId, Long lastParentCommentId, Long lastCommentId, Long limit){
         List<Comment> comments = lastParentCommentId == null || lastCommentId == null ?
                 commentRepository.findAllInfiniteScroll(articleId, limit) :
