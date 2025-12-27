@@ -1,7 +1,9 @@
 package kuke.board.article.service;
 
 import kuke.board.article.entity.Article;
+import kuke.board.article.entity.BoardArticleCount;
 import kuke.board.article.repository.ArticleRepository;
+import kuke.board.article.repository.BoardArticleCountRepository;
 import kuke.board.article.service.request.ArticleCreateRequest;
 import kuke.board.article.service.request.ArticleUpdateRequest;
 import kuke.board.article.service.response.ArticlePageResponse;
@@ -18,6 +20,7 @@ import java.util.List;
 public class ArticleService {
     private final Snowflake snowflake = new Snowflake();
     private final ArticleRepository articleRepository; // DB에 접근하는 객체
+    private final BoardArticleCountRepository boardArticleCountRepository;
 
     //CREATE
     @Transactional // 메서드 내의 작업이 하나의 트랜잭션으로 묶이도록 함 (모 아니면 도)
@@ -26,6 +29,13 @@ public class ArticleService {
                 // Entity에 정의해 둔 정적 팩토리 메서드를 사용해 객체 생성
                 Article.create(snowflake.nextId(), request.getTitle(), request.getContent(), request.getBoardId(), request.getWriterId())
         );
+        int result = boardArticleCountRepository.increase(request.getBoardId());
+        // 업데이트할 데이터가 없으면 1로 초기화
+        if(result == 0){
+            boardArticleCountRepository.save(
+                    BoardArticleCount.init(request.getBoardId(), 1L)
+            );
+        }
         return ArticleResponse.from(article); // Entity를 그대로 리턴하는 것이 아닌 DTO로 변환하여 반환
     }
 
@@ -47,7 +57,9 @@ public class ArticleService {
     //DELETE
     @Transactional
     public void delete(Long articleId){
-        articleRepository.deleteById(articleId);
+        Article article = articleRepository.findById(articleId).orElseThrow();
+        articleRepository.delete(article);
+        boardArticleCountRepository.decrease(article.getBoardId());
     }
 
     public ArticlePageResponse readAll(Long boardId, Long page, Long pageSize){
@@ -73,5 +85,11 @@ public class ArticleService {
                 .stream()
                 .map(ArticleResponse::from)
                 .toList();
+    }
+
+    public Long count(Long boardId){
+        return boardArticleCountRepository.findById(boardId)
+                .map(BoardArticleCount::getArticleCount)
+                .orElse(0L);
     }
 }

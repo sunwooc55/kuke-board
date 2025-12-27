@@ -109,6 +109,27 @@ public class ArticleApiTest {
         }
     }
 
+    @Test
+    void countTest(){
+        ArticleResponse response = create(new ArticleCreateRequest("h1", "content", 1L, 2L));
+
+        Long count1 = restClient.get()
+                .uri("/v1/articles/boards/{boardId}/count", 2L)
+                .retrieve()
+                .body(Long.class);
+        System.out.println("count1 = " + count1);
+
+        restClient.delete() // HTTP DELETE 메서드 사용하겠다 선언
+                .uri("/v1/articles/{articleId}", response.getArticleId())
+                .retrieve();
+
+        Long count2 = restClient.get()
+                .uri("/v1/articles/boards/{boardId}/count", 2L)
+                .retrieve()
+                .body(Long.class);
+        System.out.println("count2 = " + count2);
+    }
+
     // 테스트 코드 내에서만 데이터를 실어 보낼 목적으로 만든 임시 객체
     @Getter
     @AllArgsConstructor
